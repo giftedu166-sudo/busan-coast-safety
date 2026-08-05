@@ -27,16 +27,17 @@ jobs:
           def request(name, params, optional=False):
               params['authKey'] = key
               url = (name if name.startswith('http') else base + name) + '?' + urllib.parse.urlencode(params)
-              for attempt in range(3):
+              attempts = 1 if optional else 3
+              for attempt in range(attempts):
                   try:
                       request = urllib.request.Request(url, headers={'User-Agent': 'BusanCoastSafety/1.0'})
-                      with urllib.request.urlopen(request, timeout=60) as response:
+                      with urllib.request.urlopen(request, timeout=20 if optional else 45) as response:
                           return response.read().decode('euc-kr', errors='replace')
                   except Exception:
-                      if attempt == 2:
+                      if attempt == attempts - 1:
                           if optional: return ''
                           raise
-                      time.sleep(5 * (attempt + 1))
+                      time.sleep(3 * (attempt + 1))
 
           sea = request('sea_obs.php', {'tm': '0', 'stn': '0'})
           aws = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-aws2_min', {'tm2': '0', 'stn': '0', 'disp': '0'})
