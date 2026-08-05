@@ -18,7 +18,7 @@
   <header class="hero"><div class="wrap"><div class="brand" id="brand"></div><div class="eyebrow">BUSAN COAST SAFETY</div><h1 id="headline"></h1><p id="subheadline"></p></div></header>
   <main class="main">
     <section class="card"><div class="title-row"><div class="icon">1</div><h2 id="weatherTitle"></h2></div><p class="intro" id="weatherIntro"></p><label class="beach-label" for="beachSelect" id="beachLabel"></label><div class="beach-control"><select id="beachSelect" class="beach-select"></select><button id="queryButton" class="query-button"></button></div><div class="updated" id="updated"></div><div class="metrics" id="metrics"></div><details class="wind-guide"><summary><span class="alert-symbol">!</span>풍속 위험 정보</summary><p id="windInfo"></p><img src="./assets/wind-speed-guide.png" alt="풍속 단계별 바람 세기 안내 그림"></details><div class="notice" id="dataNotice"></div></section>
-    <section class="card risk"><div class="title-row"><div class="icon">2</div><h2>수온 기반 해파리 주의 안내</h2></div><div class="jellyfish-panel" id="jellyfishPanel"></div><div class="report-panel"><div class="report-top"><div><p class="panel-kicker">현장 신고 상태</p><h3>해운대해수욕장 해파리 신고 시연</h3></div><span class="demo-tag">시연용</span></div><div class="report-status" id="reportStatus"></div><button class="report-button" id="reportButton" type="button">해운대 신고 시연 보기</button><button class="location-button" id="locationButton" type="button">내 위치 확인</button><div class="location-status" id="locationStatus">현재 위치를 저장하지 않습니다.</div><div class="location-map" id="reportMap" aria-label="현재 위치와 해운대 신고 시연 위치 지도"></div><ul class="report-guide"><li>신고 1건: 제보 확인 중으로 표시</li><li>서로 다른 이용자의 신고가 2건 이상: 다중 제보 및 입수 주의로 표시</li><li>실제 신고 기능은 Firebase 연결 후에만 반영됩니다.</li></ul></div></section>
+    <section class="card risk"><div class="title-row"><div class="icon">2</div><h2>수온 기반 해파리 주의 안내</h2></div><div class="jellyfish-panel" id="jellyfishPanel"></div><div class="report-panel"><div class="report-top"><div><p class="panel-kicker">선택 해수욕장 신고 상태</p><h3 id="reportTitle"></h3></div><span class="demo-tag">시연용</span></div><div class="report-status" id="reportStatus"></div><button class="report-button" id="reportButton" type="button">신고 시연 보기</button><button class="location-button" id="locationButton" type="button">내 위치 확인</button><div class="location-status" id="locationStatus">현재 위치를 저장하지 않습니다.</div><div class="location-map" id="reportMap" aria-label="현재 위치와 신고 시연 위치 지도"></div><ul class="report-guide"><li>신고 1건: 제보 확인 중으로 표시</li><li>서로 다른 이용자의 신고가 2건 이상: 다중 제보 및 입수 주의로 표시</li><li>실제 신고 기능은 Firebase 연결 후에만 반영됩니다.</li></ul></div></section>
   </main><footer id="footer"></footer>
   <script src="./kma-api-config.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -30,6 +30,13 @@
       haeundae:{name:'\ud574\uc6b4\ub300\ud574\uc218\uc695\uc7a5',lat:35.1588,lng:129.1603,sample:{water_temperature:27.4,wave_height:1.4,wind_speed:8.2,apparent_temperature:32,weather:'\ub9d1\uc74c'}},
       gwangalli:{name:'\uad11\uc548\ub9ac\ud574\uc218\uc695\uc7a5',lat:35.1532,lng:129.1187,sample:{water_temperature:26.7,wave_height:.8,wind_speed:5.1,apparent_temperature:30,weather:'\uad6c\ub984 \uc870\uae08'}},
       songdo:{name:'\uc1a1\ub3c4\ud574\uc218\uc695\uc7a5',lat:35.0779,lng:129.0204,sample:{water_temperature:26.2,wave_height:.7,wind_speed:4.4,apparent_temperature:29,weather:'\ud750\ub9bc'}}
+    };
+    const reportSites={
+      songjeong:{lat:35.1789,lng:129.2008,area:'\uc1a1\uc815\ud574\uc218\uc695\uc7a5 \uc911\uc559 \ud574\ubcc0 \uad6c\uac04'},
+      dadaepo:{lat:35.0476,lng:128.9660,area:'\ub2e4\ub300\ud3ec\ud574\uc218\uc695\uc7a5 \uc911\uc559 \ud574\ubcc0 \uad6c\uac04'},
+      haeundae:{lat:35.1588,lng:129.1603,area:'\ud574\uc6b4\ub300\ud574\uc218\uc695\uc7a5 \uc911\uc559 \ud574\ubcc0 \uad6c\uac04'},
+      gwangalli:{lat:35.1535,lng:129.1190,area:'\uad11\uc548\ub9ac\ud574\uc218\uc695\uc7a5 \uc911\uc559 \ud574\ubcc0 \uad6c\uac04'},
+      songdo:{lat:35.0782,lng:129.0207,area:'\uc1a1\ub3c4\ud574\uc218\uc695\uc7a5 \uc911\uc559 \ud574\ubcc0 \uad6c\uac04'}
     };
     const ui={brand:'\ubc14\ub2e4 \ucf55\ucf55',headline:'\ud604\uc7ac \ubc14\ub2e4 \uc0c1\ud0dc\ub97c<br>\ud55c\ub208\uc5d0 \ud655\uc778\ud558\uc138\uc694.',sub:'\ubd80\uc0b0 \ud574\uc548\uac00\uc758 \uc218\uc628, \ud30c\uace0, \ud48d\uc18d, \uccb4\uac10\uc628\ub3c4\ub97c \uc54c\ub824\ub4dc\ub9bd\ub2c8\ub2e4.',weather:'\ud604\uc7ac \uae30\uc0c1\u00b7\ud574\uc591 \uc0c1\ud0dc',weatherIntro:'\uc2e4\uc2dc\uac04 \ub370\uc774\ud130\ub97c \ubc1b\uc544 \ud45c\uc2dc\ud558\ub294 \uacf5\uac04\uc785\ub2c8\ub2e4.',notice:'\ud604\uc7ac \uac12\uc740 \uc608\uc2dc \ub370\uc774\ud130\uc785\ub2c8\ub2e4. \uc2e4\uc81c \uad00\uce21 API\ub97c \uc5f0\uacb0\ud55c \ud6c4 \uc0ac\uc6a9\ud558\uc138\uc694.',risk:'\ud604\uc7ac \uc0c1\ud669 \ubc14\ud0d5 \uc704\ud5d8 \ud310\ub2e8',riskText:'\uc704\ud5d8\ub3c4 \ud310\ub2e8 \uc870\uac74\uc744 \ucd94\uac00\ud558\uba74 \uc5ec\uae30\uc5d0 \uacb0\uacfc\uac00 \ud45c\uc2dc\ub429\ub2c8\ub2e4.',pending:'\ud310\ub2e8 \uaddc\uce59 \uc900\ube44 \uc911',rule:'\ucd94\ud6c4 \ucd94\uac00\ud560 \uc704\ud5d8 \ud310\ub2e8 \uc870\uac74\ubb38',ruleText:'\uc704\ud5d8 \ud310\ub2e8 \ud568\uc218\uc5d0 \uc544\ub798 \uc870\uac74\ubb38\uc744 \ucd94\uac00\ud558\uba74 \ud604\uc7ac \ub370\uc774\ud130\ub85c \uc704\ud5d8\uc5d0 \ub300\ud55c \uc548\ub0b4\ub97c \ud45c\uc2dc\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.',footer:'\ubc14\ub2e4 \ucf55\ucf55 | \ubd80\uc0b0 \ud574\uc548\uac00 \uc548\uc804 \uc548\ub0b4 \uc11c\ube44\uc2a4'};
     function setText(id,value){document.getElementById(id).textContent=value}
@@ -73,40 +80,47 @@
       const directions=['\ubd81','\ubd81\ub3d9','\ub3d9','\ub0a8\ub3d9','\ub0a8','\ub0a8\uc11c','\uc11c','\ubd81\uc11c'];
       return {distance,direction:directions[Math.round(angle/45)%8]};
     }
-    function locationMessage(){
-      if(!currentLocation)return '\ub0b4 \uc704\uce58 \ud655\uc778\uc744 \ub204\ub974\uba74 \ud604\uc7ac \uc704\uce58\uc640 \ud574\uc6b4\ub300 \uc2e0\uace0 \uc2dc\uc5f0 \uc704\uce58\uc758 \uac70\ub9ac\u00b7\ubc29\ud5a5\uc744 \uc54c\ub824\ub4dc\ub9bd\ub2c8\ub2e4. \uc704\uce58\ub294 \uc800\uc7a5\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.';
-      const reportLocation={lat:35.1588,lng:129.1603},result=distanceAndDirection(currentLocation,reportLocation);
-      return '\ud604\uc7ac \uc704\uce58\uc5d0\uc11c \uc2dc\uc5f0 \uc2e0\uace0 \uc704\uce58\uae4c\uc9c0 '+result.direction+' \uc57d '+result.distance+'m\uc785\ub2c8\ub2e4. \ud604\uc7ac \uc704\uce58 \uc815\ubcf4\ub294 \uc774 \uae30\uae30\uc5d0\ub9cc \uc7a0\uc2dc \uc0ac\uc6a9\ub429\ub2c8\ub2e4.';
+    function distanceLabel(distance){return distance>=1000?(distance/1000).toFixed(1)+'km':distance+'m'}
+    function cautionMessage(distance){
+      if(distance<300)return '\uc2e0\uace0 \uc704\uce58\uac00 \ud604\uc7ac \uc704\uce58\uc640 \ub9e4\uc6b0 \uac00\uae5d\uc2b5\ub2c8\ub2e4. \ud574\ub2f9 \uad6c\uac04 \uc811\uadfc\uacfc \uc785\uc218\uc5d0 \uc8fc\uc758\ud558\uc138\uc694.';
+      if(distance<1000)return '\uc2e0\uace0 \uc704\uce58\uac00 \ud604\uc7ac \uc704\uce58 \uc778\uadfc\uc5d0 \uc788\uc2b5\ub2c8\ub2e4. \uc9c0\ub3c4\uc758 \uc8fc\ud669\uc0c9 \ud540 \ubc29\ud5a5\uc744 \ud655\uc778\ud558\uc138\uc694.';
+      return '\uc2e0\uace0 \uc704\uce58\uac00 \ud604\uc7ac \uc704\uce58\uc5d0\uc11c \uc77c\uc815 \uac70\ub9ac \ub5a8\uc5b4\uc838 \uc788\uc2b5\ub2c8\ub2e4. \ud574\ub2f9 \uad6c\uac04 \ubc29\ubb38 \uc804\uc5d0 \uc0c1\ud0dc\ub97c \ud655\uc778\ud558\uc138\uc694.';
     }
-    function updateSafetyMap(){
+    function locationMessage(reportLocation){
+      if(!currentLocation)return '\ub0b4 \uc704\uce58 \ud655\uc778\uc744 \ub204\ub974\uba74 \ud604\uc7ac \uc704\uce58\uc640 \uc120\ud0dd \ud574\uc218\uc695\uc7a5 \uc2e0\uace0 \uc704\uce58\uc758 \uac70\ub9ac\u00b7\ubc29\ud5a5\uc744 \uc54c\ub824\ub4dc\ub9bd\ub2c8\ub2e4. \uc704\uce58\ub294 \uc800\uc7a5\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.';
+      const result=distanceAndDirection(currentLocation,reportLocation);
+      return '\ud604\uc7ac \uc704\uce58\uc5d0\uc11c \uc2e0\uace0 \uc2dc\uc5f0 \uc704\uce58\uae4c\uc9c0 '+result.direction+' \uc57d '+distanceLabel(result.distance)+'\uc785\ub2c8\ub2e4. '+cautionMessage(result.distance);
+    }
+    function updateSafetyMap(reportSite,beachName,hasReport){
       if(!window.L)return;
-      const reportLocation=[35.1588,129.1603];
+      const reportLocation=[reportSite.lat,reportSite.lng];
       if(!safetyMap){
         safetyMap=L.map('reportMap',{scrollWheelZoom:false}).setView(reportLocation,15);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(safetyMap);
       }
       if(reportMarker)reportMarker.remove();
-      reportMarker=L.marker(reportLocation).addTo(safetyMap).bindPopup('\ud574\uc6b4\ub300 \ud574\ud30c\ub9ac \uc2e0\uace0 \uc2dc\uc5f0 \uc704\uce58').openPopup();
+      reportMarker=hasReport?L.marker(reportLocation).addTo(safetyMap).bindPopup(beachName+' \ud574\ud30c\ub9ac \uc2e0\uace0 \uc2dc\uc5f0 \uc704\uce58').openPopup():null;
       if(currentMarker){currentMarker.remove();currentMarker=null}if(locationLine){locationLine.remove();locationLine=null}
       if(currentLocation){
         const userPoint=[currentLocation.lat,currentLocation.lng];
         currentMarker=L.marker(userPoint,{icon:L.divIcon({className:'',html:'<span class="gps-pin"></span>',iconSize:[24,24],iconAnchor:[12,24]})}).addTo(safetyMap).bindPopup('\ub0b4 \ud604\uc7ac \uc704\uce58');
-        locationLine=L.polyline([userPoint,reportLocation],{color:'#087ea7',dashArray:'6 7'}).addTo(safetyMap);
-        safetyMap.fitBounds(L.latLngBounds([userPoint,reportLocation]).pad(.25));
+        if(hasReport){locationLine=L.polyline([userPoint,reportLocation],{color:'#087ea7',dashArray:'6 7'}).addTo(safetyMap);safetyMap.fitBounds(L.latLngBounds([userPoint,reportLocation]).pad(.25));}
+        else safetyMap.setView(userPoint,15);
       }else safetyMap.setView(reportLocation,15);
       setTimeout(()=>safetyMap.invalidateSize(),0);
     }
     async function render(){
-      const beachKey=document.getElementById('beachSelect').value,beach=beaches[beachKey],data=await getRealtime(beach,beachKey),jellyfish=jellyfishGuidance(data.water_temperature);
+      const beachKey=document.getElementById('beachSelect').value,beach=beaches[beachKey],reportSite=reportSites[beachKey],data=await getRealtime(beach,beachKey),jellyfish=jellyfishGuidance(data.water_temperature);
       document.getElementById('brand').innerHTML=ui.brand;document.getElementById('headline').innerHTML=ui.headline;
       setText('subheadline',ui.sub);setText('weatherTitle',ui.weather);setText('weatherIntro',ui.weatherIntro);setText('beachLabel','\ud574\uc218\uc695\uc7a5 \uc120\ud0dd');setText('queryButton','\uc870\ud68c');
       setText('updated','\uad00\uce21 \uc9c0\uc5ed: '+data.region+' | \uad00\uce21 \uc2dc\uac01: '+formatObservationTime(data.observed_at));
       setText('dataNotice',data.source&&data.source.includes('KMA')?'\uae30\uc0c1\uccad \ud574\uc0c1 \uad00\uce21\uacfc AWS \ub9e4\ubd84 \uad00\uce21, \ucd08\ub2e8\uae30\uc608\ubcf4 \ub370\uc774\ud130\ub85c \uac31\uc2e0\ub41c \uac12\uc785\ub2c8\ub2e4.':'KMA API \uc124\uc815 \uc804\uc774\ubbc0\ub85c \uc120\ud0dd\ud55c \uc9c0\uc5ed\uc758 \uc608\uc2dc \ub370\uc774\ud130\ub97c \ud45c\uc2dc\ud569\ub2c8\ub2e4.');
       document.getElementById('jellyfishPanel').innerHTML='<p class="panel-kicker">\uc218\uc628 \uae30\ubc18 \uc608\uce21</p><h3>\ud604\uc7ac '+data.water_temperature+'\u2103 <span class="jellyfish-level '+jellyfish.style+'">\ud574\ud30c\ub9ac \uc8fc\uc758 '+jellyfish.label+'</span></h3><p>'+jellyfish.text+'</p><p>\uc2e4\uc81c \ucd9c\ud604\uc740 \uc2e0\uace0\u00b7\uacf5\uc2dd \uad00\uce21 \uc815\ubcf4\ub85c \ud655\uc778\ud574\uc57c \ud569\ub2c8\ub2e4.</p>';
       const reportStatus=document.getElementById('reportStatus'),reportButton=document.getElementById('reportButton');
-      if(demoReport){reportStatus.innerHTML='<strong>\uc2e0\uace0 \ud655\uc778 \uc911</strong><div class="report-meta">\ud574\uc6b4\ub300\ud574\uc218\uc695\uc7a5 \uc911\uc559 \ud574\ubcc0 \uad6c\uac04 (\uc2dc\uc5f0 \uc704\uce58)<br>\ud574\ud30c\ub9ac \uc81c\ubcf4 1\uac74 \u00b7 10\ubd84 \uc804 \uc811\uc218 (\uc2dc\uc5f0)<br>\uc7a5\uc18c \ud655\uc778 \ud6c4 \uc8fc\uc758 \uc548\ub0b4\uac00 \ud45c\uc2dc\ub429\ub2c8\ub2e4.</div>';reportButton.textContent='\uc2e0\uace0 \uc2dc\uc5f0 \uc885\ub8cc';}else{reportStatus.innerHTML='<strong>\uc2e0\uace0 \uc5c6\uc74c</strong><div class="report-meta">\uc2e4\uc81c \uc2e0\uace0 \ub370\uc774\ud130\ub294 \uc544\uc9c1 \uc5f0\ub3d9\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.<br>\uc544\ub798 \ubc84\ud2bc\uc73c\ub85c \ud574\uc6b4\ub300 \uc2e0\uace0\uac00 \ub4e4\uc5b4\uc654\uc744 \ub54c\uc758 \ud45c\uc2dc\ub97c \ubcfc \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>';reportButton.textContent='\ud574\uc6b4\ub300 \uc2e0\uace0 \uc2dc\uc5f0 \ubcf4\uae30';}
-      setText('locationStatus',locationMessage());
-      updateSafetyMap();
+      setText('reportTitle',data.region+' \ud574\ud30c\ub9ac \uc2e0\uace0 \uc2dc\uc5f0');
+      if(demoReport){reportStatus.innerHTML='<strong>\uc2e0\uace0 \ud655\uc778 \uc911</strong><div class="report-meta">'+reportSite.area+' (\uc2dc\uc5f0 \uc704\uce58)<br>\ud574\ud30c\ub9ac \uc81c\ubcf4 1\uac74 \u00b7 10\ubd84 \uc804 \uc811\uc218 (\uc2dc\uc5f0)<br>'+(!currentLocation?'\ub0b4 \uc704\uce58 \ud655\uc778 \ud6c4 \uac70\ub9ac\ubcc4 \uc8fc\uc758 \uc548\ub0b4\uac00 \ud45c\uc2dc\ub429\ub2c8\ub2e4.':locationMessage(reportSite))+'</div>';reportButton.textContent='\uc2e0\uace0 \uc2dc\uc5f0 \uc885\ub8cc';}else{reportStatus.innerHTML='<strong>\uc2e0\uace0 \uc5c6\uc74c</strong><div class="report-meta">\uc2e4\uc81c \uc2e0\uace0 \ub370\uc774\ud130\ub294 \uc544\uc9c1 \uc5f0\ub3d9\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.<br>\uc544\ub798 \ubc84\ud2bc\uc73c\ub85c '+data.region+' \uc2e0\uace0\uac00 \ub4e4\uc5b4\uc654\uc744 \ub54c\uc758 \ud45c\uc2dc\ub97c \ubcfc \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>';reportButton.textContent=data.region+' \uc2e0\uace0 \uc2dc\uc5f0 \ubcf4\uae30';}
+      setText('locationStatus',locationMessage(reportSite));
+      updateSafetyMap(reportSite,data.region,demoReport);
       setText('footer',ui.footer);setText('windInfo',windGuidance(data.wind_speed));
       const values=[['\uc218\uc628',data.water_temperature+' \u2103',status(data.water_temperature,25,28)],['\ud30c\uace0',data.wave_height+' m',status(data.wave_height,.8,1.3)],['\ud48d\uc18d <span class="wind-mark">!</span>',data.wind_speed+' m/s',status(data.wind_speed,5,8),'wind-metric'],['\uccb4\uac10\uc628\ub3c4',data.apparent_temperature+' \u2103',status(data.apparent_temperature,28,32)],['\ub0a0\uc528',data.weather,'safe']];
       document.getElementById('metrics').innerHTML=values.map(x=>'<div class="metric '+x[2]+' '+(x[3]||'')+'"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
