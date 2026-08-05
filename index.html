@@ -151,6 +151,9 @@
       });
     }
     window.addEventListener('hashchange',()=>showPage(pageFromHash()));
-    setupResponseCards();showPage(pageFromHash());render()
+    setupResponseCards();showPage(pageFromHash());render();
+    // GitHub Actions가 갱신한 기상청 데이터를 열린 화면에서도 30분마다 다시 읽는다.
+    window.setInterval(render,30*60*1000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
   </script>
 </body></html>
