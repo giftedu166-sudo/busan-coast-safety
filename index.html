@@ -33,6 +33,12 @@
     };
     const ui={brand:'\ubc14\ub2e4 \ucf55\ucf55',headline:'\ud604\uc7ac \ubc14\ub2e4 \uc0c1\ud0dc\ub97c<br>\ud55c\ub208\uc5d0 \ud655\uc778\ud558\uc138\uc694.',sub:'\ubd80\uc0b0 \ud574\uc548\uac00\uc758 \uc218\uc628, \ud30c\uace0, \ud48d\uc18d, \uccb4\uac10\uc628\ub3c4\ub97c \uc54c\ub824\ub4dc\ub9bd\ub2c8\ub2e4.',weather:'\ud604\uc7ac \uae30\uc0c1\u00b7\ud574\uc591 \uc0c1\ud0dc',weatherIntro:'\uc2e4\uc2dc\uac04 \ub370\uc774\ud130\ub97c \ubc1b\uc544 \ud45c\uc2dc\ud558\ub294 \uacf5\uac04\uc785\ub2c8\ub2e4.',notice:'\ud604\uc7ac \uac12\uc740 \uc608\uc2dc \ub370\uc774\ud130\uc785\ub2c8\ub2e4. \uc2e4\uc81c \uad00\uce21 API\ub97c \uc5f0\uacb0\ud55c \ud6c4 \uc0ac\uc6a9\ud558\uc138\uc694.',risk:'\ud604\uc7ac \uc0c1\ud669 \ubc14\ud0d5 \uc704\ud5d8 \ud310\ub2e8',riskText:'\uc704\ud5d8\ub3c4 \ud310\ub2e8 \uc870\uac74\uc744 \ucd94\uac00\ud558\uba74 \uc5ec\uae30\uc5d0 \uacb0\uacfc\uac00 \ud45c\uc2dc\ub429\ub2c8\ub2e4.',pending:'\ud310\ub2e8 \uaddc\uce59 \uc900\ube44 \uc911',rule:'\ucd94\ud6c4 \ucd94\uac00\ud560 \uc704\ud5d8 \ud310\ub2e8 \uc870\uac74\ubb38',ruleText:'\uc704\ud5d8 \ud310\ub2e8 \ud568\uc218\uc5d0 \uc544\ub798 \uc870\uac74\ubb38\uc744 \ucd94\uac00\ud558\uba74 \ud604\uc7ac \ub370\uc774\ud130\ub85c \uc704\ud5d8\uc5d0 \ub300\ud55c \uc548\ub0b4\ub97c \ud45c\uc2dc\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.',footer:'\ubc14\ub2e4 \ucf55\ucf55 | \ubd80\uc0b0 \ud574\uc548\uac00 \uc548\uc804 \uc548\ub0b4 \uc11c\ube44\uc2a4'};
     function setText(id,value){document.getElementById(id).textContent=value}
+    function formatObservationTime(value){
+      const text=String(value||'');
+      const match=text.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/);
+      if(!match)return text;
+      return Number(match[1])+'\ub144 '+Number(match[2])+'\uc6d4 '+Number(match[3])+'\uc77c '+Number(match[4])+'\uc2dc '+Number(match[5])+'\ubd84';
+    }
     let queryNumber=0, demoReport=false,currentLocation=null,safetyMap=null,reportMarker=null,currentMarker=null,locationLine=null;
     async function getRealtime(beach,beachKey){
       try{
@@ -94,7 +100,7 @@
       const beachKey=document.getElementById('beachSelect').value,beach=beaches[beachKey],data=await getRealtime(beach,beachKey),jellyfish=jellyfishGuidance(data.water_temperature);
       document.getElementById('brand').innerHTML=ui.brand;document.getElementById('headline').innerHTML=ui.headline;
       setText('subheadline',ui.sub);setText('weatherTitle',ui.weather);setText('weatherIntro',ui.weatherIntro);setText('beachLabel','\ud574\uc218\uc695\uc7a5 \uc120\ud0dd');setText('queryButton','\uc870\ud68c');
-      setText('updated','\uad00\uce21 \uc9c0\uc5ed: '+data.region+' | \uad00\uce21 \uc2dc\uac01: '+data.observed_at);
+      setText('updated','\uad00\uce21 \uc9c0\uc5ed: '+data.region+' | \uad00\uce21 \uc2dc\uac01: '+formatObservationTime(data.observed_at));
       setText('dataNotice',data.source&&data.source.includes('KMA')?'\uae30\uc0c1\uccad \ud574\uc0c1 \uad00\uce21\uacfc AWS \ub9e4\ubd84 \uad00\uce21, \ucd08\ub2e8\uae30\uc608\ubcf4 \ub370\uc774\ud130\ub85c \uac31\uc2e0\ub41c \uac12\uc785\ub2c8\ub2e4.':'KMA API \uc124\uc815 \uc804\uc774\ubbc0\ub85c \uc120\ud0dd\ud55c \uc9c0\uc5ed\uc758 \uc608\uc2dc \ub370\uc774\ud130\ub97c \ud45c\uc2dc\ud569\ub2c8\ub2e4.');
       document.getElementById('jellyfishPanel').innerHTML='<p class="panel-kicker">\uc218\uc628 \uae30\ubc18 \uc608\uce21</p><h3>\ud604\uc7ac '+data.water_temperature+'\u2103 <span class="jellyfish-level '+jellyfish.style+'">\ud574\ud30c\ub9ac \uc8fc\uc758 '+jellyfish.label+'</span></h3><p>'+jellyfish.text+'</p><p>\uc2e4\uc81c \ucd9c\ud604\uc740 \uc2e0\uace0\u00b7\uacf5\uc2dd \uad00\uce21 \uc815\ubcf4\ub85c \ud655\uc778\ud574\uc57c \ud569\ub2c8\ub2e4.</p>';
       const reportStatus=document.getElementById('reportStatus'),reportButton=document.getElementById('reportButton');
