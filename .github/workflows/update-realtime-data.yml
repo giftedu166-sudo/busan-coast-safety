@@ -1,0 +1,96 @@
+name: Update KMA marine observations
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect current observations
+        env:
+          KMA_API_KEY: ${{ secrets.KMA_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, math, os, urllib.parse, urllib.request
+          from datetime import datetime, timedelta, timezone
+
+          key = os.environ['KMA_API_KEY']
+          base = 'https://apihub.kma.go.kr/api/typ01/url/'
+
+          def request(name, params):
+              params['authKey'] = key
+              url = base + name + '?' + urllib.parse.urlencode(params)
+              with urllib.request.urlopen(url, timeout=30) as response:
+                  return response.read().decode('euc-kr', errors='replace')
+
+          sea = request('sea_obs.php', {'tm': '0', 'stn': '0'})
+          now = datetime.now(timezone(timedelta(hours=9)))
+          warnings = request('wrn_inf_rpt.php', {
+              'tmfc1': (now - timedelta(days=1)).strftime('%Y%m%d%H%M'),
+              'tmfc2': now.strftime('%Y%m%d%H%M'), 'stn': '0', 'disp': '0'
+          })
+
+          rows = {}
+          for line in sea.splitlines():
+              fields = [field.strip() for field in line.split(',')]
+              if len(fields) >= 14 and fields[0] in {'B','C','D','L','N','F','G','J'}:
+                  rows[fields[2]] = fields
+
+          def value(row, index):
+              try:
+                  number = float(row[index])
+                  return None if number <= -90 else number
+              except (IndexError, TypeError, ValueError):
+                  return None
+
+          oryukdo = rows.get('22459')
+          dadaepo = rows.get('22460')
+          busan = rows.get('158650')
+          if not (oryukdo and dadaepo and busan):
+              raise RuntimeError('Required Busan marine observation stations are unavailable')
+
+          def apparent_temperature(ta, humidity, wind):
+              if None in (ta, humidity, wind): return ta
+              vapor = humidity / 100 * 6.105 * math.exp(17.27 * ta / (237.7 + ta))
+              return round(ta + .33 * vapor - .70 * wind - 4, 1)
+
+          wind = value(busan, 8)
+          air = value(busan, 11)
+          humidity = value(busan, 13)
+          apparent = apparent_temperature(air, humidity, wind)
+          observed = busan[1]
+          names = {
+              'songjeong': '\uc1a1\uc815\ud574\uc218\uc695\uc7a5', 'dadaepo': '\ub2e4\ub300\ud3ec\ud574\uc218\uc695\uc7a5',
+              'haeundae': '\ud574\uc6b4\ub300\ud574\uc218\uc695\uc7a5', 'gwangalli': '\uad11\uc548\ub9ac\ud574\uc218\uc695\uc7a5',
+              'songdo': '\uc1a1\ub3c4\ud574\uc218\uc695\uc7a5'
+          }
+          def beach(name, marine):
+              return {'region': names[name], 'observed_at': observed, 'water_temperature': value(marine, 10),
+                      'wave_height': value(marine, 6), 'wind_speed': wind, 'apparent_temperature': apparent,
+                      'weather': 'KMA marine observation', 'source': 'KMA sea observation'}
+
+          data = {'updated_at': now.isoformat(), 'source': 'KMA sea observation',
+                  'weather_information_checked_at': now.isoformat(),
+                  'weather_information_records': warnings.count('$0#'),
+                  'stations': {'oryukdo': '22459', 'dadaepo': '22460', 'busan': '158650'},
+                  'beaches': {'songjeong': beach('songjeong', oryukdo), 'dadaepo': beach('dadaepo', dadaepo),
+                              'haeundae': beach('haeundae', oryukdo), 'gwangalli': beach('gwangalli', oryukdo),
+                              'songdo': beach('songdo', oryukdo)}}
+          with open('data/realtime-data.json', 'w', encoding='utf-8') as file:
+              json.dump(data, file, ensure_ascii=False, indent=2)
+          PY
+      - name: Commit updated observation data
+        run: |
+          if git diff --quiet -- data/realtime-data.json; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/realtime-data.json
+          git commit -m "Update KMA marine observations"
+          git push
