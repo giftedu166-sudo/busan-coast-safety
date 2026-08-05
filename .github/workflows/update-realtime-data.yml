@@ -2,7 +2,8 @@ name: Update KMA marine observations
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # 정각 혼잡을 피하기 위해 매시 07분·37분에 기상청 API를 조회한다.
+    - cron: "7,37 * * * *"
   workflow_dispatch:
 
 permissions:
