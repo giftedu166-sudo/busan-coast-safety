@@ -42,8 +42,10 @@ jobs:
           sea = request('sea_obs.php', {'tm': '0', 'stn': '0'})
           aws = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-aws2_min', {'tm2': '0', 'stn': '0', 'disp': '0'})
           now = datetime.now(timezone(timedelta(hours=9)))
-          forecast_tmfc = now.strftime('%Y%m%d%H%M')
-          forecast_tmef = (now + timedelta(hours=1)).strftime('%Y%m%d%H')
+          # 발표 직후에는 초단기예보 격자가 -99일 수 있어 최근 확정 자료를 사용한다.
+          forecast_time = now - timedelta(hours=1)
+          forecast_tmfc = forecast_time.strftime('%Y%m%d%H%M')
+          forecast_tmef = forecast_time.strftime('%Y%m%d%H')
           sky_raw = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_vsrt_grd', {
               'tmfc': forecast_tmfc, 'tmef': forecast_tmef, 'vars': 'SKY'
           }, optional=True)
@@ -140,7 +142,7 @@ jobs:
               humidity = value(aws_row, 14)
               rain_detected = value(aws_row, 9)
               rainfall = value(aws_row, 10)
-              precipitation = '\ube44' if rain_detected == 1 or (rainfall is not None and rainfall > 0) else '\uac15\uc218 \uc5c6\uc74c'
+              precipitation = '\ube44' if rain_detected == 1 or (rainfall is not None and rainfall > 0) else '\ud558\ub298 \uc0c1\ud0dc \ud655\uc778 \uc911'
               return {'region': names[name], 'observed_at': aws_row[0], 'water_temperature': value(marine, 10),
                       'wave_height': value(marine, 6), 'wind_speed': wind,
                       'apparent_temperature': apparent_temperature(air, humidity, wind), 'weather': current_weather(name, precipitation),
