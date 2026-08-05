@@ -12,7 +12,7 @@
     .beach-control{display:flex;gap:8px;align-items:center}.query-button{padding:11px 17px;border:0;border-radius:10px;background:var(--navy);color:#fff;font-weight:800;cursor:pointer}.metric.safe{border-color:#85d3aa;background:#effbf4}.metric.caution{border-color:#efb36d;background:#fff5e8}.metric.danger{border-color:#efa29e;background:#fff3f2}
     .wind-mark,.alert-symbol{display:inline-grid;place-items:center;width:20px;height:20px;margin-left:5px;border-radius:50%;background:#d66722;color:#fff;font-size:.78rem;font-weight:900;vertical-align:middle}.wind-guide{margin-top:16px;border:1px solid #f0c38a;border-radius:13px;background:#fffaf2;overflow:hidden}.wind-guide summary{display:flex;align-items:center;gap:7px;padding:13px 15px;cursor:pointer;font-weight:900;color:#754000}.wind-guide summary::-webkit-details-marker{display:none}.wind-guide p{margin:0;padding:0 15px 12px;color:#705b43;font-size:.9rem}.wind-guide img{display:block;width:100%;border-top:1px solid #f0c38a}.jellyfish-level{display:inline-block;padding:6px 11px;border-radius:999px;font-weight:900}.jellyfish-low{background:#e8f8ed;color:#176740}.jellyfish-caution{background:#fff0d8;color:#965700}.jellyfish-high{background:#ffe4e1;color:#a33128}
     .metric.wind-metric{position:relative}.metric.wind-metric .wind-mark{position:absolute;top:9px;right:9px;margin:0;box-shadow:0 2px 6px #9a3c1740}.jellyfish-panel,.report-panel{margin-top:18px;padding:18px;border-radius:14px;border:1px solid var(--line);background:#fff}.jellyfish-panel{background:linear-gradient(135deg,#effcff,#fff)}.panel-kicker{margin:0 0 5px;color:var(--blue);font-size:.82rem;font-weight:900}.jellyfish-panel h3,.report-panel h3{margin:0;font-size:1.13rem}.jellyfish-panel p,.report-panel p{margin:5px 0;color:var(--muted)}.report-panel{border-color:#f1d0b0}.report-top{display:flex;justify-content:space-between;gap:12px;align-items:start}.demo-tag{padding:4px 8px;border-radius:999px;background:#fff0d8;color:#955200;font-size:.78rem;font-weight:900;white-space:nowrap}.report-status{margin-top:14px;padding:14px;border-left:5px solid #e47a26;background:#fffaf4}.report-status strong{display:block;font-size:1.02rem}.report-meta{margin-top:7px;font-size:.9rem;color:#5d5147}.report-button,.location-button{margin-top:14px;padding:10px 13px;border:0;border-radius:9px;background:#8d4310;color:#fff;font-weight:800;cursor:pointer}.location-button{margin-left:6px;background:#0c6d8d}.location-status{margin-top:12px;padding:12px;border-radius:10px;background:#eef9fc;color:#31535f;font-size:.9rem}.location-map{height:260px;margin-top:12px;border:1px solid #b8d6e1;border-radius:11px;overflow:hidden}.gps-pin{display:block;width:24px;height:24px;border-radius:50% 50% 50% 0;background:#e97520;border:3px solid #fff;box-shadow:0 2px 6px #7d360a80;transform:rotate(-45deg)}.gps-pin::after{content:"";display:block;width:7px;height:7px;margin:5px;border-radius:50%;background:#fff}.report-guide{margin:15px 0 0;padding-left:20px;color:var(--muted);font-size:.88rem}.response-intro{margin:7px 0 20px;color:var(--muted)}.emergency-call{padding:14px;border-radius:12px;background:#fff0ef;border:1px solid #f4bbb7;color:#9d302a;font-weight:850}.response-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}.response-card{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fff}.response-card h3{margin:0;font-size:1.12rem}.response-card h4{margin:16px 0 5px;font-size:.95rem;color:var(--blue)}.response-card p,.response-card li{font-size:.91rem;color:#46606a}.response-card ul{margin:6px 0;padding-left:19px}.source-note{margin:18px 0 0;color:var(--muted);font-size:.82rem}.source-note a{color:var(--blue)}@media(max-width:650px){.response-grid{grid-template-columns:1fr}}
-    #subheadline{display:none}
+    #subheadline{display:none}.response-card h3{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;outline:none}.response-card h3::after{content:'⌄';font-size:1.4rem;color:var(--blue);transition:transform .2s}.response-card h3:focus-visible{outline:3px solid #9cecf5;outline-offset:5px;border-radius:5px}.response-card:not(.open) h4,.response-card:not(.open) h4+ul{display:none}.response-card.open h3::after{transform:rotate(180deg)}
   </style>
 </head>
 <body>
@@ -136,7 +136,16 @@
       if(page==='jellyfish'&&safetyMap){window.setTimeout(()=>safetyMap.invalidateSize(),0)}
     }
     function pageFromHash(){if(location.hash==='#jellyfish-section')return 'jellyfish';if(location.hash==='#response-section')return 'response';return 'weather'}
+    function setupResponseCards(){
+      document.querySelectorAll('.response-card').forEach(card=>{
+        const title=card.querySelector('h3');
+        title.tabIndex=0;title.setAttribute('role','button');title.setAttribute('aria-expanded','false');
+        const toggle=()=>{const open=card.classList.toggle('open');title.setAttribute('aria-expanded',String(open))};
+        title.addEventListener('click',toggle);
+        title.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
+      });
+    }
     window.addEventListener('hashchange',()=>showPage(pageFromHash()));
-    showPage(pageFromHash());render()
+    setupResponseCards();showPage(pageFromHash());render()
   </script>
 </body></html>
