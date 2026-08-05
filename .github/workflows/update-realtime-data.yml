@@ -88,9 +88,12 @@ jobs:
               wind = value(aws_row, 3)
               air = value(aws_row, 8)
               humidity = value(aws_row, 14)
+              rain_detected = value(aws_row, 9)
+              rainfall = value(aws_row, 10)
+              precipitation = '\ube44' if rain_detected == 1 or (rainfall is not None and rainfall > 0) else '\uac15\uc218 \uc5c6\uc74c'
               return {'region': names[name], 'observed_at': aws_row[0], 'water_temperature': value(marine, 10),
                       'wave_height': value(marine, 6), 'wind_speed': wind,
-                      'apparent_temperature': apparent_temperature(air, humidity, wind), 'weather': '\ud574\uc0c1 \uad00\uce21',
+                      'apparent_temperature': apparent_temperature(air, humidity, wind), 'weather': precipitation,
                       'source': 'KMA sea observation + AWS', 'sea_station_name': sea_station_name,
                       'aws_station_name': aws_station_name, 'aws_station_id': aws_station_id}
 
