@@ -48,6 +48,10 @@
       if(!match)return text;
       return Number(match[1])+'\ub144 '+Number(match[2])+'\uc6d4 '+Number(match[3])+'\uc77c '+Number(match[4])+'\uc2dc '+Number(match[5])+'\ubd84';
     }
+    function nextRefreshTime(){
+      const next=new Date((Math.floor(Date.now()/(30*60*1000))+1)*30*60*1000);
+      return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'numeric',minute:'2-digit',hour12:false}).format(next)+' \uc804\ud6c4';
+    }
     let queryNumber=0, demoReport=false,currentLocation=null,safetyMap=null,reportMarker=null,currentMarker=null,locationLine=null;
     async function getRealtime(beach,beachKey){
       try{
@@ -115,7 +119,7 @@
       const beachKey=document.getElementById('beachSelect').value,beach=beaches[beachKey],reportSite=reportSites[beachKey],data=await getRealtime(beach,beachKey),jellyfish=jellyfishGuidance(data.water_temperature);
       document.getElementById('brand').innerHTML=ui.brand;document.getElementById('headline').innerHTML=ui.headline;
       setText('subheadline',ui.sub);setText('weatherTitle',ui.weather);setText('weatherIntro',ui.weatherIntro);setText('beachLabel','\ud574\uc218\uc695\uc7a5 \uc120\ud0dd');setText('queryButton','\uc870\ud68c');
-      setText('updated','\uad00\uce21 \uc9c0\uc5ed: '+data.region+' | \uad00\uce21 \uc2dc\uac01: '+formatObservationTime(data.observed_at)+' | \uae30\uc0c1\uccad API \uc790\ub3d9 \uac31\uc2e0 \uc911 (30\ubd84\ub9c8\ub2e4)');
+      setText('updated','\uad00\uce21 \uc9c0\uc5ed: '+data.region+' | \uad00\uce21 \uc2dc\uac01: '+formatObservationTime(data.observed_at)+' | \uae30\uc0c1\uccad API \uc790\ub3d9 \uac31\uc2e0 \uc911 (30\ubd84\ub9c8\ub2e4) | \ub2e4\uc74c \uc790\ub3d9 \uc870\ud68c \uc608\uc815: '+nextRefreshTime());
       setText('dataNotice',data.source&&data.source.includes('KMA')?'\uae30\uc0c1\uccad \ud574\uc0c1 \uad00\uce21\uacfc AWS \ub9e4\ubd84 \uad00\uce21, \ucd08\ub2e8\uae30\uc608\ubcf4 \ub370\uc774\ud130\ub85c \uac31\uc2e0\ub41c \uac12\uc785\ub2c8\ub2e4.':'KMA API \uc124\uc815 \uc804\uc774\ubbc0\ub85c \uc120\ud0dd\ud55c \uc9c0\uc5ed\uc758 \uc608\uc2dc \ub370\uc774\ud130\ub97c \ud45c\uc2dc\ud569\ub2c8\ub2e4.');
       document.getElementById('jellyfishPanel').innerHTML='<p class="panel-kicker">\uc218\uc628 \uae30\ubc18 \uc608\uce21</p><h3>\ud604\uc7ac '+data.water_temperature+'\u2103 <span class="jellyfish-level '+jellyfish.style+'">\ud574\ud30c\ub9ac \uc8fc\uc758 '+jellyfish.label+'</span></h3><p>'+jellyfish.text+'</p><p>\uc2e4\uc81c \ucd9c\ud604\uc740 \uc2e0\uace0\u00b7\uacf5\uc2dd \uad00\uce21 \uc815\ubcf4\ub85c \ud655\uc778\ud574\uc57c \ud569\ub2c8\ub2e4.</p>';
       const reportStatus=document.getElementById('reportStatus'),reportButton=document.getElementById('reportButton');
