@@ -41,6 +41,14 @@ jobs:
           sea = request('sea_obs.php', {'tm': '0', 'stn': '0'})
           aws = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-aws2_min', {'tm2': '0', 'stn': '0', 'disp': '0'})
           now = datetime.now(timezone(timedelta(hours=9)))
+          forecast_tmfc = now.strftime('%Y%m%d%H%M')
+          forecast_tmef = (now + timedelta(hours=1)).strftime('%Y%m%d%H')
+          sky_raw = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_vsrt_grd', {
+              'tmfc': forecast_tmfc, 'tmef': forecast_tmef, 'vars': 'SKY'
+          }, optional=True)
+          pty_raw = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_vsrt_grd', {
+              'tmfc': forecast_tmfc, 'tmef': forecast_tmef, 'vars': 'PTY'
+          }, optional=True)
           warnings = request('wrn_inf_rpt.php', {
               'tmfc1': (now - timedelta(days=1)).strftime('%Y%m%d%H%M'),
               'tmfc2': now.strftime('%Y%m%d%H%M'), 'stn': '0', 'disp': '0'
@@ -57,6 +65,35 @@ jobs:
               fields = line.split()
               if len(fields) >= 15 and fields[0].isdigit() and len(fields[0]) == 12:
                   aws_rows[fields[1]] = fields
+
+          def forecast_grid(raw):
+              values = []
+              for item in raw.replace('\n', ',').split(','):
+                  try:
+                      values.append(float(item))
+                  except ValueError:
+                      pass
+              return values if len(values) == 149 * 253 else []
+
+          def grid_coordinate(longitude, latitude):
+              raw = request('https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_xy_lonlat', {
+                  'lon': longitude, 'lat': latitude, 'help': '0'
+              }, optional=True)
+              numbers = []
+              for token in raw.replace(',', ' ').split():
+                  try:
+                      numbers.append(float(token))
+                  except ValueError:
+                      pass
+              return (int(numbers[-2]), int(numbers[-1])) if len(numbers) >= 4 else None
+
+          sky_grid, pty_grid = forecast_grid(sky_raw), forecast_grid(pty_raw)
+          beach_coordinates = {
+              'songjeong': (129.2005, 35.1786), 'dadaepo': (128.9657, 35.0473),
+              'haeundae': (129.1603, 35.1588), 'gwangalli': (129.1187, 35.1532),
+              'songdo': (129.0204, 35.0779)
+          }
+          beach_grids = {name: grid_coordinate(*coordinate) for name, coordinate in beach_coordinates.items()}
 
           def value(row, index):
               try:
@@ -78,6 +115,18 @@ jobs:
               vapor = humidity / 100 * 6.105 * math.exp(17.27 * ta / (237.7 + ta))
               return round(ta + .33 * vapor - .70 * wind - 4, 1)
 
+          def current_weather(name, fallback):
+              coordinate = beach_grids.get(name)
+              if not coordinate or not sky_grid or not pty_grid:
+                  return fallback
+              x, y = coordinate
+              index = (y - 1) * 149 + (x - 1)
+              sky = sky_grid[index] if index < len(sky_grid) else -99
+              pty = pty_grid[index] if index < len(pty_grid) else -99
+              precipitation = {1: '\ube44', 2: '\ube44/\ub208', 3: '\ub208', 4: '\uc18c\ub098\uae30'}.get(round(pty))
+              if precipitation: return precipitation
+              return {1: '\ub9d1\uc74c', 3: '\uad6c\ub984 \ub9ce\uc74c', 4: '\ud750\ub9bc'}.get(round(sky), fallback)
+
           names = {
               'songjeong': '\uc1a1\uc815\ud574\uc218\uc695\uc7a5', 'dadaepo': '\ub2e4\ub300\ud3ec\ud574\uc218\uc695\uc7a5',
               'haeundae': '\ud574\uc6b4\ub300\ud574\uc218\uc695\uc7a5', 'gwangalli': '\uad11\uc548\ub9ac\ud574\uc218\uc695\uc7a5',
@@ -93,8 +142,8 @@ jobs:
               precipitation = '\ube44' if rain_detected == 1 or (rainfall is not None and rainfall > 0) else '\uac15\uc218 \uc5c6\uc74c'
               return {'region': names[name], 'observed_at': aws_row[0], 'water_temperature': value(marine, 10),
                       'wave_height': value(marine, 6), 'wind_speed': wind,
-                      'apparent_temperature': apparent_temperature(air, humidity, wind), 'weather': precipitation,
-                      'source': 'KMA sea observation + AWS', 'sea_station_name': sea_station_name,
+                      'apparent_temperature': apparent_temperature(air, humidity, wind), 'weather': current_weather(name, precipitation),
+                      'source': 'KMA sea observation + AWS + ultra-short forecast', 'sea_station_name': sea_station_name,
                       'aws_station_name': aws_station_name, 'aws_station_id': aws_station_id}
 
           data = {'updated_at': now.isoformat(), 'source': 'KMA sea observation',
