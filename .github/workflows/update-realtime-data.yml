@@ -60,8 +60,9 @@ jobs:
 
           oryukdo = rows.get('22459')
           dadaepo = rows.get('22460')
+          gijang = rows.get('22511')
           busan = rows.get('158650')
-          if not (oryukdo and dadaepo and busan):
+          if not (oryukdo and dadaepo and gijang and busan):
               raise RuntimeError('Required Busan marine observation stations are unavailable')
 
           def apparent_temperature(ta, humidity, wind):
@@ -79,18 +80,18 @@ jobs:
               'haeundae': '\ud574\uc6b4\ub300\ud574\uc218\uc695\uc7a5', 'gwangalli': '\uad11\uc548\ub9ac\ud574\uc218\uc695\uc7a5',
               'songdo': '\uc1a1\ub3c4\ud574\uc218\uc695\uc7a5'
           }
-          def beach(name, marine):
+          def beach(name, marine, station_name):
               return {'region': names[name], 'observed_at': observed, 'water_temperature': value(marine, 10),
                       'wave_height': value(marine, 6), 'wind_speed': wind, 'apparent_temperature': apparent,
-                      'weather': 'KMA marine observation', 'source': 'KMA sea observation'}
+                      'weather': 'KMA marine observation', 'source': 'KMA sea observation', 'station_name': station_name}
 
           data = {'updated_at': now.isoformat(), 'source': 'KMA sea observation',
                   'weather_information_checked_at': now.isoformat(),
                   'weather_information_records': warnings.count('$0#'),
-                  'stations': {'oryukdo': '22459', 'dadaepo': '22460', 'busan': '158650'},
-                  'beaches': {'songjeong': beach('songjeong', oryukdo), 'dadaepo': beach('dadaepo', dadaepo),
-                              'haeundae': beach('haeundae', oryukdo), 'gwangalli': beach('gwangalli', oryukdo),
-                              'songdo': beach('songdo', oryukdo)}}
+                  'stations': {'oryukdo': '22459', 'dadaepo': '22460', 'gijang': '22511', 'busan': '158650'},
+                  'beaches': {'songjeong': beach('songjeong', gijang, 'Gijang'), 'dadaepo': beach('dadaepo', dadaepo, 'Dadaepo'),
+                              'haeundae': beach('haeundae', oryukdo, 'Oryukdo'), 'gwangalli': beach('gwangalli', oryukdo, 'Oryukdo'),
+                              'songdo': beach('songdo', dadaepo, 'Dadaepo')}}
           with open('data/realtime-data.json', 'w', encoding='utf-8') as file:
               json.dump(data, file, ensure_ascii=False, indent=2)
           PY
