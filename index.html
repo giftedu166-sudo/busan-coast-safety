@@ -182,7 +182,7 @@
       document.body.insertAdjacentHTML('beforeend','<div class="wind-modal" id="waveModal" hidden><div class="wind-modal-card" role="dialog" aria-modal="true" aria-labelledby="waveModalTitle"><button class="wind-modal-close" id="waveModalClose" type="button" aria-label="파고 안내 닫기">×</button><h2 id="waveModalTitle">파고 위험 정보</h2><p id="waveModalText"></p><img src="./assets/wave-height-guide.png" alt="파고 단계별 바다 상태 안내 그림"></div></div>');
       const modal=document.getElementById('waveModal');
       const close=()=>{modal.hidden=true;document.body.style.overflow=''};
-      window.openWaveModal=()=>{document.getElementById('waveModalText').textContent='현재 파고는 '+latestData.wave_height+'m로 '+waveCategory(latestData.wave_height)+'입니다. 경계값은 앞 구간에만 포함됩니다.';modal.hidden=false;document.body.style.overflow='hidden'};
+      window.openWaveModal=()=>{document.getElementById('waveModalText').textContent='현재 파고는 '+latestData.wave_height+'m로 '+waveCategory(latestData.wave_height)+'입니다.';modal.hidden=false;document.body.style.overflow='hidden'};
       document.getElementById('metrics').addEventListener('click',event=>{if(event.target.closest('.wave-mark'))window.openWaveModal()});
       document.getElementById('waveModalClose').addEventListener('click',close);
       modal.addEventListener('click',event=>{if(event.target===modal)close()});
