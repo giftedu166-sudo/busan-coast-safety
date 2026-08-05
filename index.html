@@ -78,27 +78,27 @@
       return {label:'\ub192\uc74c',style:'jellyfish-high',text:'22\u2103 \uc774\uc0c1 \uad6c\uac04\uc73c\ub85c, \uc81c\uacf5\ub41c \ubd84\uc11d\uc5d0\uc11c \ucd9c\ud604\uc728\uc774 20\u2103 \ubbf8\ub9cc\ubcf4\ub2e4 \ud06c\uac8c \ub192\uc558\ub358 \uc218\uc628\ub300\uc785\ub2c8\ub2e4.'};
     }
     function windGuidance(wind){
-      if(wind<2)return '\ud604\uc7ac '+wind+' m/s: \uc57d\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
-      if(wind<5)return '\ud604\uc7ac '+wind+' m/s: \uc0b0\ub4e4\ubc14\ub78c\uc785\ub2c8\ub2e4.';
-      if(wind<10)return '\ud604\uc7ac '+wind+' m/s: \uc57d\uac04 \uac15\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
-      if(wind<15)return '\ud604\uc7ac '+wind+' m/s: \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \uc8fc\uc758\uac00 \ud544\uc694\ud569\ub2c8\ub2e4.';
-      if(wind<20)return '\ud604\uc7ac '+wind+' m/s: \ub9e4\uc6b0 \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \ud574\uc548\uac00 \ud65c\ub3d9\uc744 \uba48\ucd94\uc138\uc694.';
+      if(wind<=2)return '\ud604\uc7ac '+wind+' m/s: \uc57d\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
+      if(wind<=5)return '\ud604\uc7ac '+wind+' m/s: \uc0b0\ub4e4\ubc14\ub78c\uc785\ub2c8\ub2e4.';
+      if(wind<=10)return '\ud604\uc7ac '+wind+' m/s: \uc57d\uac04 \uac15\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
+      if(wind<=15)return '\ud604\uc7ac '+wind+' m/s: \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \uc8fc\uc758\uac00 \ud544\uc694\ud569\ub2c8\ub2e4.';
+      if(wind<=20)return '\ud604\uc7ac '+wind+' m/s: \ub9e4\uc6b0 \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \ud574\uc548\uac00 \ud65c\ub3d9\uc744 \uba48\ucd94\uc138\uc694.';
       return '\ud604\uc7ac '+wind+' m/s: \ud3ed\ud48d\uc5d0 \uac00\uae4c\uc6b4 \ubc14\ub78c\uc785\ub2c8\ub2e4. \uc989\uc2dc \uc548\uc804\ud55c \uc2e4\ub0b4\ub85c \uc774\ub3d9\ud558\uc138\uc694.';
     }
     function windCategory(wind){
-      if(wind<2)return '\uc57d\ud55c \ubc14\ub78c';
-      if(wind<5)return '\uc0b0\ub4e4\ubc14\ub78c';
-      if(wind<10)return '\uc57d\uac04 \uac15\ud55c \ubc14\ub78c';
-      if(wind<15)return '\uac15\ud55c \ubc14\ub78c';
-      if(wind<20)return '\ub9e4\uc6b0 \uac15\ud55c \ubc14\ub78c';
+      if(wind<=2)return '\uc57d\ud55c \ubc14\ub78c';
+      if(wind<=5)return '\uc0b0\ub4e4\ubc14\ub78c';
+      if(wind<=10)return '\uc57d\uac04 \uac15\ud55c \ubc14\ub78c';
+      if(wind<=15)return '\uac15\ud55c \ubc14\ub78c';
+      if(wind<=20)return '\ub9e4\uc6b0 \uac15\ud55c \ubc14\ub78c';
       return '\ud3ed\ud48d\uc5d0 \uac00\uae4c\uc6b4 \ubc14\ub78c';
     }
     function waveCategory(wave){
-      if(wave<.5)return '\uc794\uc794\ud55c \ud30c\ub3c4';
-      if(wave<1)return '\uc791\uc740 \ud30c\ub3c4';
-      if(wave<1.5)return '\ubcf4\ud1b5 \ud30c\ub3c4';
-      if(wave<2)return '\ub192\uc740 \ud30c\ub3c4';
-      if(wave<3)return '\ub9e4\uc6b0 \ub192\uc740 \ud30c\ub3c4';
+      if(wave<=.5)return '\uc794\uc794\ud55c \ud30c\ub3c4';
+      if(wave<=1)return '\uc791\uc740 \ud30c\ub3c4';
+      if(wave<=1.5)return '\ubcf4\ud1b5 \ud30c\ub3c4';
+      if(wave<=2)return '\ub192\uc740 \ud30c\ub3c4';
+      if(wave<=3)return '\ub9e4\uc6b0 \ub192\uc740 \ud30c\ub3c4';
       return '\uc704\ud5d8\ud55c \ud30c\ub3c4';
     }
     function distanceAndDirection(from,to){
@@ -172,7 +172,7 @@
       document.body.insertAdjacentHTML('beforeend','<div class="wind-modal" id="windModal" hidden><div class="wind-modal-card" role="dialog" aria-modal="true" aria-labelledby="windModalTitle"><button class="wind-modal-close" id="windModalClose" type="button" aria-label="풍속 안내 닫기">×</button><h2 id="windModalTitle">풍속 위험 정보</h2><p id="windModalText"></p><img src="./assets/wind-speed-guide.png" alt="풍속 단계별 바람 세기 안내 그림"></div></div>');
       const modal=document.getElementById('windModal');
       const close=()=>{modal.hidden=true;document.body.style.overflow=''};
-      window.openWindModal=()=>{document.getElementById('windModalText').textContent='현재 풍속은 '+latestData.wind_speed+'m/s로 '+windCategory(latestData.wind_speed)+'입니다.';modal.hidden=false;document.body.style.overflow='hidden'};
+      window.openWindModal=()=>{document.getElementById('windModalText').textContent='현재 풍속은 '+latestData.wind_speed+'m/s로 '+windCategory(latestData.wind_speed)+'입니다. 경계값은 앞 구간에만 포함됩니다.';modal.hidden=false;document.body.style.overflow='hidden'};
       document.getElementById('metrics').addEventListener('click',event=>{if(event.target.closest('.wind-mark'))window.openWindModal()});
       document.getElementById('windModalClose').addEventListener('click',close);
       modal.addEventListener('click',event=>{if(event.target===modal)close()});
@@ -182,7 +182,7 @@
       document.body.insertAdjacentHTML('beforeend','<div class="wind-modal" id="waveModal" hidden><div class="wind-modal-card" role="dialog" aria-modal="true" aria-labelledby="waveModalTitle"><button class="wind-modal-close" id="waveModalClose" type="button" aria-label="파고 안내 닫기">×</button><h2 id="waveModalTitle">파고 위험 정보</h2><p id="waveModalText"></p><img src="./assets/wave-height-guide.png" alt="파고 단계별 바다 상태 안내 그림"></div></div>');
       const modal=document.getElementById('waveModal');
       const close=()=>{modal.hidden=true;document.body.style.overflow=''};
-      window.openWaveModal=()=>{document.getElementById('waveModalText').textContent='현재 파고는 '+latestData.wave_height+'m로 '+waveCategory(latestData.wave_height)+'입니다.';modal.hidden=false;document.body.style.overflow='hidden'};
+      window.openWaveModal=()=>{document.getElementById('waveModalText').textContent='현재 파고는 '+latestData.wave_height+'m로 '+waveCategory(latestData.wave_height)+'입니다. 경계값은 앞 구간에만 포함됩니다.';modal.hidden=false;document.body.style.overflow='hidden'};
       document.getElementById('metrics').addEventListener('click',event=>{if(event.target.closest('.wave-mark'))window.openWaveModal()});
       document.getElementById('waveModalClose').addEventListener('click',close);
       modal.addEventListener('click',event=>{if(event.target===modal)close()});
