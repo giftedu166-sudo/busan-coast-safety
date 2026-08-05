@@ -83,15 +83,15 @@ jobs:
           def beach(name, marine, station_name):
               return {'region': names[name], 'observed_at': observed, 'water_temperature': value(marine, 10),
                       'wave_height': value(marine, 6), 'wind_speed': wind, 'apparent_temperature': apparent,
-                      'weather': 'KMA marine observation', 'source': 'KMA sea observation', 'station_name': station_name}
+                      'weather': '\ud574\uc0c1 \uad00\uce21', 'source': 'KMA sea observation', 'station_name': station_name}
 
           data = {'updated_at': now.isoformat(), 'source': 'KMA sea observation',
                   'weather_information_checked_at': now.isoformat(),
                   'weather_information_records': warnings.count('$0#'),
                   'stations': {'oryukdo': '22459', 'dadaepo': '22460', 'gijang': '22511', 'busan': '158650'},
-                  'beaches': {'songjeong': beach('songjeong', gijang, 'Gijang'), 'dadaepo': beach('dadaepo', dadaepo, 'Dadaepo'),
-                              'haeundae': beach('haeundae', oryukdo, 'Oryukdo'), 'gwangalli': beach('gwangalli', oryukdo, 'Oryukdo'),
-                              'songdo': beach('songdo', dadaepo, 'Dadaepo')}}
+                  'beaches': {'songjeong': beach('songjeong', gijang, '\uae30\uc7a5 \uad00\uce21\uc18c'), 'dadaepo': beach('dadaepo', dadaepo, '\ub2e4\ub300\ud3ec \uad00\uce21\uc18c'),
+                              'haeundae': beach('haeundae', oryukdo, '\uc624\ub959\ub3c4 \uad00\uce21\uc18c'), 'gwangalli': beach('gwangalli', oryukdo, '\uc624\ub959\ub3c4 \uad00\uce21\uc18c'),
+                              'songdo': beach('songdo', dadaepo, '\ub2e4\ub300\ud3ec \uad00\uce21\uc18c')}}
           with open('data/realtime-data.json', 'w', encoding='utf-8') as file:
               json.dump(data, file, ensure_ascii=False, indent=2)
           PY
