@@ -18,24 +18,32 @@ jobs:
           KMA_API_KEY: ${{ secrets.KMA_API_KEY }}
         run: |
           python3 - <<'PY'
-          import json, math, os, urllib.parse, urllib.request
+          import json, math, os, time, urllib.parse, urllib.request
           from datetime import datetime, timedelta, timezone
 
           key = os.environ['KMA_API_KEY']
           base = 'https://apihub.kma.go.kr/api/typ01/url/'
 
-          def request(name, params):
+          def request(name, params, optional=False):
               params['authKey'] = key
               url = base + name + '?' + urllib.parse.urlencode(params)
-              with urllib.request.urlopen(url, timeout=30) as response:
-                  return response.read().decode('euc-kr', errors='replace')
+              for attempt in range(3):
+                  try:
+                      request = urllib.request.Request(url, headers={'User-Agent': 'BusanCoastSafety/1.0'})
+                      with urllib.request.urlopen(request, timeout=60) as response:
+                          return response.read().decode('euc-kr', errors='replace')
+                  except Exception:
+                      if attempt == 2:
+                          if optional: return ''
+                          raise
+                      time.sleep(5 * (attempt + 1))
 
           sea = request('sea_obs.php', {'tm': '0', 'stn': '0'})
           now = datetime.now(timezone(timedelta(hours=9)))
           warnings = request('wrn_inf_rpt.php', {
               'tmfc1': (now - timedelta(days=1)).strftime('%Y%m%d%H%M'),
               'tmfc2': now.strftime('%Y%m%d%H%M'), 'stn': '0', 'disp': '0'
-          })
+          }, optional=True)
 
           rows = {}
           for line in sea.splitlines():
