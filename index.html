@@ -73,11 +73,12 @@
       return {label:'\ub192\uc74c',style:'jellyfish-high',text:'22\u2103 \uc774\uc0c1 \uad6c\uac04\uc73c\ub85c, \uc81c\uacf5\ub41c \ubd84\uc11d\uc5d0\uc11c \ucd9c\ud604\uc728\uc774 20\u2103 \ubbf8\ub9cc\ubcf4\ub2e4 \ud06c\uac8c \ub192\uc558\ub358 \uc218\uc628\ub300\uc785\ub2c8\ub2e4.'};
     }
     function windGuidance(wind){
-      if(wind<3)return '\ud604\uc7ac '+wind+' m/s: \uc57d\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
-      if(wind<5.5)return '\ud604\uc7ac '+wind+' m/s: \uc0b0\ub4e4\ubc14\ub78c\uc785\ub2c8\ub2e4.';
+      if(wind<2)return '\ud604\uc7ac '+wind+' m/s: \uc57d\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
+      if(wind<5)return '\ud604\uc7ac '+wind+' m/s: \uc0b0\ub4e4\ubc14\ub78c\uc785\ub2c8\ub2e4.';
       if(wind<10)return '\ud604\uc7ac '+wind+' m/s: \uc57d\uac04 \uac15\ud55c \ubc14\ub78c\uc785\ub2c8\ub2e4.';
       if(wind<15)return '\ud604\uc7ac '+wind+' m/s: \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \uc8fc\uc758\uac00 \ud544\uc694\ud569\ub2c8\ub2e4.';
-      return '\ud604\uc7ac '+wind+' m/s: \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \ud574\uc548\uac00 \ud65c\ub3d9\uc5d0 \uc8fc\uc758\ud558\uc138\uc694.';
+      if(wind<20)return '\ud604\uc7ac '+wind+' m/s: \ub9e4\uc6b0 \uac15\ud55c \ubc14\ub78c\uc73c\ub85c \ud574\uc548\uac00 \ud65c\ub3d9\uc744 \uba48\ucd94\uc138\uc694.';
+      return '\ud604\uc7ac '+wind+' m/s: \ud3ed\ud48d\uc5d0 \uac00\uae4c\uc6b4 \ubc14\ub78c\uc785\ub2c8\ub2e4. \uc989\uc2dc \uc548\uc804\ud55c \uc2e4\ub0b4\ub85c \uc774\ub3d9\ud558\uc138\uc694.';
     }
     function distanceAndDirection(from,to){
       const radius=6371000,toRadians=value=>value*Math.PI/180,latitude=toRadians(to.lat-from.lat),longitude=toRadians(to.lng-from.lng);
