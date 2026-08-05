@@ -57,7 +57,7 @@
       else{next.setUTCHours(next.getUTCHours()+1);next.setUTCMinutes(7,0,0)}
       return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'numeric',minute:'2-digit',hour12:false}).format(next)+' \uc804\ud6c4';
     }
-    let queryNumber=0, demoReport=false,currentLocation=null,safetyMap=null,reportMarker=null,currentMarker=null,locationLine=null;
+    let queryNumber=0, demoReport=false,currentLocation=null,safetyMap=null,reportMarker=null,currentMarker=null,locationLine=null,latestData=null;
     async function getRealtime(beach,beachKey){
       try{
         const saved=await fetch('./data/realtime-data.json?updated='+Date.now(),{cache:'no-store'}).then(response=>{if(!response.ok)throw Error();return response.json()});
@@ -139,7 +139,7 @@
       setTimeout(()=>safetyMap.invalidateSize(),0);
     }
     async function render(){
-      const beachKey=document.getElementById('beachSelect').value,beach=beaches[beachKey],reportSite=reportSites[beachKey],data=await getRealtime(beach,beachKey),jellyfish=jellyfishGuidance(data.water_temperature);
+      const beachKey=document.getElementById('beachSelect').value,beach=beaches[beachKey],reportSite=reportSites[beachKey],data=await getRealtime(beach,beachKey),jellyfish=jellyfishGuidance(data.water_temperature);latestData=data;
       document.getElementById('brand').innerHTML=ui.brand;document.getElementById('headline').innerHTML=ui.headline;
       setText('subheadline',ui.sub);setText('weatherTitle',ui.weather);setText('weatherIntro',ui.weatherIntro);setText('beachLabel','\ud574\uc218\uc695\uc7a5 \uc120\ud0dd');setText('queryButton','\uc870\ud68c');
       setText('updated','\uad00\uce21 \uc9c0\uc5ed: '+data.region+' | \uad00\uce21 \uc2dc\uac01: '+formatObservationTime(data.observed_at)+' | \uae30\uc0c1\uccad API \uc790\ub3d9 \uac31\uc2e0 \uc911 (\ub9e4\uc2dc 07\ubd84·37\ubd84) | \ub2e4\uc74c \uc790\ub3d9 \uc870\ud68c \uc608\uc815: '+nextRefreshTime());
@@ -152,8 +152,8 @@
       reportStatus.innerHTML=reportStatus.innerHTML.replace(/<br>[^<]*거리별[^<]*/,'');
       updateSafetyMap(reportSite,data.region,demoReport);
       setText('footer',ui.footer);setText('windInfo',windGuidance(data.wind_speed));
-      const values=[['\uc218\uc628',data.water_temperature+' \u2103',status(data.water_temperature,25,28)],['\ud30c\uace0 <span class="wave-guide-trigger"><button class="wave-mark" type="button" aria-label="파고 위험 정보 열기">!</button><span>\ud30c\uace0 \uc704\ud5d8 \uc815\ubcf4</span></span>',data.wave_height+' m',status(data.wave_height,.8,1.3),'wave-metric',waveCategory(data.wave_height)],['\ud48d\uc18d <span class="wind-guide-trigger"><button class="wind-mark" type="button" aria-label="풍속 위험 정보 열기">!</button><span>\ud48d\uc18d \uc704\ud5d8 \uc815\ubcf4</span></span>',data.wind_speed+' m/s',status(data.wind_speed,10,15),'wind-metric',windCategory(data.wind_speed)],['\uccb4\uac10\uc628\ub3c4',data.apparent_temperature+' \u2103',status(data.apparent_temperature,28,32)],['\ub0a0\uc528',data.weather,'safe']];
-      document.getElementById('metrics').innerHTML=values.map(x=>'<div class="metric '+x[2]+' '+(x[3]||'')+'"><span>'+x[0]+'</span><b>'+x[1]+'</b>'+(x[4]?'<strong class="condition-label">'+x[4]+'</strong>':'')+'</div>').join('');
+      const values=[['\uc218\uc628',data.water_temperature+' \u2103',status(data.water_temperature,25,28)],['\ud30c\uace0 <span class="wave-guide-trigger"><button class="wave-mark" type="button" aria-label="파고 위험 정보 열기">!</button><span>\ud30c\uace0 \uc704\ud5d8 \uc815\ubcf4</span></span>',data.wave_height+' m',status(data.wave_height,.8,1.3),'wave-metric'],['\ud48d\uc18d <span class="wind-guide-trigger"><button class="wind-mark" type="button" aria-label="풍속 위험 정보 열기">!</button><span>\ud48d\uc18d \uc704\ud5d8 \uc815\ubcf4</span></span>',data.wind_speed+' m/s',status(data.wind_speed,10,15),'wind-metric'],['\uccb4\uac10\uc628\ub3c4',data.apparent_temperature+' \u2103',status(data.apparent_temperature,28,32)],['\ub0a0\uc528',data.weather,'safe']];
+      document.getElementById('metrics').innerHTML=values.map(x=>'<div class="metric '+x[2]+' '+(x[3]||'')+'"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('');
     }
     const beachSelect=document.getElementById('beachSelect');beachSelect.innerHTML=Object.entries(beaches).map(x=>'<option value="'+x[0]+'">'+x[1].name+'</option>').join('');document.getElementById('queryButton').addEventListener('click',render);document.getElementById('reportButton').addEventListener('click',()=>{demoReport=!demoReport;render()});document.getElementById('locationButton').addEventListener('click',()=>{const button=document.getElementById('locationButton');if(!navigator.geolocation){setText('locationStatus','\uc774 \ube0c\ub77c\uc6b0\uc800\ub294 \uc704\uce58 \ud655\uc778\uc744 \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.');return}button.textContent='\uc704\uce58 \ud655\uc778 \uc911...';navigator.geolocation.getCurrentPosition(position=>{currentLocation={lat:position.coords.latitude,lng:position.coords.longitude};button.textContent='\ub0b4 \uc704\uce58 \ub2e4\uc2dc \ud655\uc778';render()},()=>{button.textContent='\ub0b4 \uc704\uce58 \ud655\uc778';setText('locationStatus','\uc704\uce58 \uad8c\ud55c\uc774 \ud5c8\uc6a9\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \ubc30\ud3ec\ub41c \uc6f9\uc0ac\uc774\ud2b8\uc5d0\uc11c \uc704\uce58 \uad8c\ud55c\uc744 \ud5c8\uc6a9\ud574 \uc8fc\uc138\uc694.')},{enableHighAccuracy:true,timeout:10000,maximumAge:30000})});
     function showPage(page){
@@ -172,17 +172,17 @@
       document.body.insertAdjacentHTML('beforeend','<div class="wind-modal" id="windModal" hidden><div class="wind-modal-card" role="dialog" aria-modal="true" aria-labelledby="windModalTitle"><button class="wind-modal-close" id="windModalClose" type="button" aria-label="풍속 안내 닫기">×</button><h2 id="windModalTitle">풍속 위험 정보</h2><p id="windModalText"></p><img src="./assets/wind-speed-guide.png" alt="풍속 단계별 바람 세기 안내 그림"></div></div>');
       const modal=document.getElementById('windModal');
       const close=()=>{modal.hidden=true;document.body.style.overflow=''};
-      window.openWindModal=()=>{document.getElementById('windModalText').textContent=document.getElementById('windInfo').textContent;modal.hidden=false;document.body.style.overflow='hidden'};
+      window.openWindModal=()=>{document.getElementById('windModalText').textContent='현재 풍속은 '+latestData.wind_speed+'m/s로 '+windCategory(latestData.wind_speed)+'입니다.';modal.hidden=false;document.body.style.overflow='hidden'};
       document.getElementById('metrics').addEventListener('click',event=>{if(event.target.closest('.wind-mark'))window.openWindModal()});
       document.getElementById('windModalClose').addEventListener('click',close);
       modal.addEventListener('click',event=>{if(event.target===modal)close()});
       document.addEventListener('keydown',event=>{if(event.key==='Escape')close()});
     }
     function setupWaveModal(){
-      document.body.insertAdjacentHTML('beforeend','<div class="wind-modal" id="waveModal" hidden><div class="wind-modal-card" role="dialog" aria-modal="true" aria-labelledby="waveModalTitle"><button class="wind-modal-close" id="waveModalClose" type="button" aria-label="파고 안내 닫기">×</button><h2 id="waveModalTitle">파고 위험 정보</h2><p>현재 파고와 비교해 바다 상태를 확인하세요.</p><img src="./assets/wave-height-guide.png" alt="파고 단계별 바다 상태 안내 그림"></div></div>');
+      document.body.insertAdjacentHTML('beforeend','<div class="wind-modal" id="waveModal" hidden><div class="wind-modal-card" role="dialog" aria-modal="true" aria-labelledby="waveModalTitle"><button class="wind-modal-close" id="waveModalClose" type="button" aria-label="파고 안내 닫기">×</button><h2 id="waveModalTitle">파고 위험 정보</h2><p id="waveModalText"></p><img src="./assets/wave-height-guide.png" alt="파고 단계별 바다 상태 안내 그림"></div></div>');
       const modal=document.getElementById('waveModal');
       const close=()=>{modal.hidden=true;document.body.style.overflow=''};
-      window.openWaveModal=()=>{modal.hidden=false;document.body.style.overflow='hidden'};
+      window.openWaveModal=()=>{document.getElementById('waveModalText').textContent='현재 파고는 '+latestData.wave_height+'m로 '+waveCategory(latestData.wave_height)+'입니다.';modal.hidden=false;document.body.style.overflow='hidden'};
       document.getElementById('metrics').addEventListener('click',event=>{if(event.target.closest('.wave-mark'))window.openWaveModal()});
       document.getElementById('waveModalClose').addEventListener('click',close);
       modal.addEventListener('click',event=>{if(event.target===modal)close()});
